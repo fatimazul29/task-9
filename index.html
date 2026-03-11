@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Puzzle Game - Enhanced with Animations & Sounds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .upload-zone {
+            border: 3px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .upload-zone:hover {
+            border-color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-zone.dragover {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e3c72;
+            font-weight: 500;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.6);
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-reset:hover:not(:disabled) {
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+
+        .btn-new {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-new:hover:not(:disabled) {
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .reference-image {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .reference-image h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .reference-img-container {
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .reference-img-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .game-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .puzzle-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+        }
+
+        #puzzleGrid {
+            display: grid;
+            gap: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .puzzle-piece {
+            position: relative;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        /* Shuffle Animation */
+        @keyframes shufflePulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes shuffleRotate {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+            25% {
+                transform: rotate(-5deg) scale(0.98);
+            }
+            75% {
+                transform: rotate(5deg) scale(0.98);
+            }
+            100% {
+                transform: rotate(0deg) scale(1);
+            }
+        }
+
+        @keyframes shuffleSlide {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .puzzle-piece.shuffling {
+            animation: shufflePulse 0.6s ease-in-out, shuffleRotate 0.6s ease-in-out;
+            border-color: rgba(74, 222, 128, 0.6);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.5);
+        }
+
+        /* Swap Animation */
+        @keyframes swapPiece {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1) rotate(5deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .puzzle-piece.swapping {
+            animation: swapPiece 0.4s ease-in-out;
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+            z-index: 10;
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            z-index: 5;
+        }
+
+        .puzzle-piece.selected {
+            border: 3px solid #3b82f6;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+            transform: scale(1.05);
+            z-index: 6;
+        }
+
+        .puzzle-piece.correct {
+            border-color: rgba(74, 222, 128, 0.6);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+
+        .victory-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .victory-overlay.show {
+            display: flex;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .victory-content {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: bounceIn 0.6s ease-out;
+            max-width: 500px;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .victory-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: rotate 2s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(-10deg);
+            }
+            75% {
+                transform: rotate(10deg);
+            }
+        }
+
+        .victory-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .victory-stats {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .victory-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .victory-buttons button {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .sound-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            z-index: 100;
+        }
+
+        .sound-control:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
+        }
+
+        .sound-icon {
+            font-size: 1.5rem;
+        }
+
+        .demo-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+        }
+
+        .demo-image:hover {
+            transform: scale(1.05);
+            border-color: rgba(74, 222, 128, 0.6);
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .victory-content {
+                padding: 30px;
+            }
+
+            .victory-title {
+                font-size: 2rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sound Control -->
+    <div class="sound-control" id="soundToggle" title="Toggle Sound">
+        <span class="sound-icon" id="soundIcon">🔊</span>
+    </div>
+
+    <!-- Victory Overlay -->
+    <div class="victory-overlay" id="victoryOverlay">
+        <div class="victory-content">
+            <div class="victory-icon">🎉</div>
+            <h2 class="victory-title">Puzzle Completed!</h2>
+            <div class="victory-stats">
+                <p>⏱️ Time: <strong id="finalTime">0:00</strong></p>
+                <p>🔄 Moves: <strong id="finalMoves">0</strong></p>
+            </div>
+            <div class="victory-buttons">
+                <button onclick="resetPuzzle()" class="btn-reset">Play Again</button>
+                <button onclick="newImage()" class="btn-new">New Image</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🧩 Image Puzzle Game</h1>
+            <p class="subtitle">Upload an image and solve the puzzle with animations and sounds!</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Sidebar -->
+            <div class="card upload-section">
+                <h2 style="margin-bottom: 20px; font-size: 1.5rem;">⚙️ Game Settings</h2>
+                
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">Drag & Drop Image</div>
+                    <div class="upload-hint">or click to browse</div>
+                    <input type="file" id="imageInput" accept="image/*">
+                </div>
+
+                <div class="settings-group" style="margin-top: 20px;">
+                    <label>🖼️ Or Try Demo Images:</label>
+                    <div id="demoImagesContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
+                </div>
+
+                <div class="settings-group">
+                    <label>Difficulty Level:</label>
+                    <select id="gridSize">
+                        <option value="3">Easy (3×3 - 9 pieces)</option>
+                        <option value="4" selected>Medium (4×4 - 16 pieces)</option>
+                        <option value="5">Hard (5×5 - 25 pieces)</option>
+                        <option value="6">Expert (6×6 - 36 pieces)</option>
+                    </select>
+                </div>
+
+                <button id="startBtn" disabled>Start Game</button>
+                <button id="resetBtn" class="btn-reset" style="margin-top: 10px;" disabled>Reset Puzzle</button>
+                <button id="newImageBtn" class="btn-new" style="margin-top: 10px;" disabled>Upload New Image</button>
+
+                <div class="reference-image" id="referenceSection">
+                    <h3>📷 Reference Image</h3>
+                    <div class="reference-img-container">
+                        <img id="referenceImage" alt="Reference">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Main Area -->
+            <div class="card game-section">
+                <div class="game-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">⏱️ Time</div>
+                        <div class="stat-value" id="timer">0:00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">🔄 Moves</div>
+                        <div class="stat-value" id="moves">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">🎯 Progress</div>
+                        <div class="stat-value" id="progress">0%</div>
+                    </div>
+                </div>
+
+                <div class="puzzle-container">
+                    <div id="puzzleGrid">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🧩</div>
+                            <div class="empty-state-text">Upload an image to start playing!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            uploadedImage: null,
+            gridSize: 4,
+            pieces: [],
+            currentPositions: [],
+            correctPositions: [],
+            selectedPiece: null,
+            moves: 0,
+            timer: 0,
+            timerInterval: null,
+            gameStarted: false,
+            soundEnabled: true
+        };
+
+        // Demo Images (using picsum.photos for random beautiful images)
+        const demoImages = [
+            'https://picsum.photos/seed/nature1/600',
+            'https://picsum.photos/seed/city1/600',
+            'https://picsum.photos/seed/animal1/600',
+            'https://picsum.photos/seed/mountain1/600',
+            'https://picsum.photos/seed/beach1/600',
+            'https://picsum.photos/seed/forest1/600'
+        ];
+
+        // Sound Effects (using Web Audio API)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+
+        // Generate sound effects
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            switch(type) {
+                case 'swap':
+                    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    break;
+                
+                case 'shuffle':
+                    oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                    break;
+                
+                case 'complete':
+                    // Victory sound
+                    const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C
+                    notes.forEach((freq, index) => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.15);
+                        gain.gain.setValueAtTime(0.3, audioContext.currentTime + index * 0.15);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.15 + 0.4);
+                        osc.start(audioContext.currentTime + index * 0.15);
+                        osc.stop(audioContext.currentTime + index * 0.15 + 0.4);
+                    });
+                    break;
+                
+                case 'click':
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                    break;
+            }
+        }
+
+        // DOM Elements
+        const uploadZone = document.getElementById('uploadZone');
+        const imageInput = document.getElementById('imageInput');
+        const gridSizeSelect = document.getElementById('gridSize');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const newImageBtn = document.getElementById('newImageBtn');
+        const puzzleGrid = document.getElementById('puzzleGrid');
+        const referenceSection = document.getElementById('referenceSection');
+        const referenceImage = document.getElementById('referenceImage');
+        const timerDisplay = document.getElementById('timer');
+        const movesDisplay = document.getElementById('moves');
+        const progressDisplay = document.getElementById('progress');
+        const victoryOverlay = document.getElementById('victoryOverlay');
+        const soundToggle = document.getElementById('soundToggle');
+        const soundIcon = document.getElementById('soundIcon');
+        const demoImagesContainer = document.getElementById('demoImagesContainer');
+
+        // Initialize Demo Images
+        function initDemoImages() {
+            demoImages.forEach((imageUrl, index) => {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.className = 'demo-image';
+                img.alt = `Demo Image ${index + 1}`;
+                img.title = 'Click to use this image';
+                img.addEventListener('click', () => loadDemoImage(imageUrl));
+                demoImagesContainer.appendChild(img);
+            });
+        }
+
+        // Load Demo Image
+        function loadDemoImage(imageUrl) {
+            gameState.uploadedImage = new Image();
+            gameState.uploadedImage.crossOrigin = 'anonymous';
+            gameState.uploadedImage.onload = () => {
+                referenceImage.src = imageUrl;
+                referenceSection.style.display = 'block';
+                startBtn.disabled = false;
+                uploadZone.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <div class="upload-text">Demo Image Loaded!</div>
+                    <div class="upload-hint">Click "Start Game" to begin</div>
+                `;
+                playSound('click');
+            };
+            gameState.uploadedImage.src = imageUrl;
+        }
+
+        // Event Listeners
+        uploadZone.addEventListener('click', () => imageInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+        
+        gridSizeSelect.addEventListener('change', (e) => {
+            gameState.gridSize = parseInt(e.target.value);
+        });
+        
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetPuzzle);
+        newImageBtn.addEventListener('click', newImage);
+        soundToggle.addEventListener('click', toggleSound);
+
+        // Handle Image Upload
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                gameState.uploadedImage = new Image();
+                gameState.uploadedImage.onload = () => {
+                    referenceImage.src = e.target.result;
+                    referenceSection.style.display = 'block';
+                    startBtn.disabled = false;
+                    uploadZone.innerHTML = `
+                        <div class="upload-icon">✅</div>
+                        <div class="upload-text">Image Loaded!</div>
+                        <div class="upload-hint">Click "Start Game" to begin</div>
+                    `;
+                };
+                gameState.uploadedImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Start Game
+        function startGame() {
+            if (!gameState.uploadedImage) return;
+            
+            gameState.moves = 0;
+            gameState.timer = 0;
+            gameState.gameStarted = false;
+            
+            movesDisplay.textContent = '0';
+            timerDisplay.textContent = '0:00';
+            progressDisplay.textContent = '0%';
+            
+            startBtn.disabled = true;
+            resetBtn.disabled = false;
+            newImageBtn.disabled = false;
+            gridSizeSelect.disabled = true;
+            
+            generatePuzzle();
+        }
+
+        // Generate Puzzle
+        function generatePuzzle() {
+            const size = gameState.gridSize;
+            const pieceSize = Math.min(600 / size, 600 / size);
+            
+            puzzleGrid.innerHTML = '';
+            puzzleGrid.style.gridTemplateColumns = `repeat(${size}, ${pieceSize}px)`;
+            puzzleGrid.style.gridTemplateRows = `repeat(${size}, ${pieceSize}px)`;
+            
+            gameState.pieces = [];
+            gameState.correctPositions = [];
+            
+            // Create pieces
+            for (let i = 0; i < size * size; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.style.width = `${pieceSize}px`;
+                piece.style.height = `${pieceSize}px`;
+                piece.dataset.index = i;
+                piece.dataset.correctPosition = i;
+                
+                const row = Math.floor(i / size);
+                const col = i % size;
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = pieceSize;
+                canvas.height = pieceSize;
+                const ctx = canvas.getContext('2d');
+                
+                const imgWidth = gameState.uploadedImage.width;
+                const imgHeight = gameState.uploadedImage.height;
+                const minDimension = Math.min(imgWidth, imgHeight);
+                
+                const sourceX = (imgWidth - minDimension) / 2 + (col * minDimension / size);
+                const sourceY = (imgHeight - minDimension) / 2 + (row * minDimension / size);
+                const sourceSize = minDimension / size;
+                
+                ctx.drawImage(
+                    gameState.uploadedImage,
+                    sourceX, sourceY, sourceSize, sourceSize,
+                    0, 0, pieceSize, pieceSize
+                );
+                
+                piece.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                piece.addEventListener('click', () => handlePieceClick(i));
+                
+                gameState.pieces.push(piece);
+                gameState.correctPositions.push(i);
+            }
+            
+            // Shuffle with animation
+            shufflePuzzle();
+        }
+
+        // Shuffle Puzzle with Animation
+        async function shufflePuzzle() {
+            const positions = [...gameState.correctPositions];
+            
+            // Fisher-Yates shuffle
+            for (let i = positions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [positions[i], positions[j]] = [positions[j], positions[i]];
+            }
+            
+            gameState.currentPositions = positions;
+            
+            // Clear grid
+            puzzleGrid.innerHTML = '';
+            
+            // Add pieces with staggered animation
+            for (let i = 0; i < gameState.pieces.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 30)); // Stagger delay
+                
+                const pieceIndex = positions[i];
+                const piece = gameState.pieces[pieceIndex];
+                piece.dataset.currentPosition = i;
+                
+                // Add shuffle animation class
+                piece.classList.add('shuffling');
+                puzzleGrid.appendChild(piece);
+                
+                // Play shuffle sound
+                if (i % 3 === 0) { // Play sound every 3 pieces to avoid overwhelming
+                    playSound('shuffle');
+                }
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    piece.classList.remove('shuffling');
+                }, 600);
+            }
+            
+            updateProgress();
+        }
+
+        // Handle Piece Click
+        function handlePieceClick(currentPosition) {
+            if (!gameState.gameStarted) {
+                gameState.gameStarted = true;
+                startTimer();
+            }
+            
+            playSound('click');
+            
+            if (gameState.selectedPiece === null) {
+                // Select first piece
+                gameState.selectedPiece = currentPosition;
+                gameState.pieces.forEach(p => {
+                    if (parseInt(p.dataset.currentPosition) === currentPosition) {
+                        p.classList.add('selected');
+                    }
+                });
+            } else {
+                // Swap pieces
+                if (gameState.selectedPiece !== currentPosition) {
+                    swapPieces(gameState.selectedPiece, currentPosition);
+                    gameState.moves++;
+                    movesDisplay.textContent = gameState.moves;
+                }
+                
+                // Deselect
+                gameState.pieces.forEach(p => p.classList.remove('selected'));
+                gameState.selectedPiece = null;
+            }
+        }
+
+        // Swap Pieces with Animation
+        function swapPieces(pos1, pos2) {
+            const index1 = gameState.currentPositions[pos1];
+            const index2 = gameState.currentPositions[pos2];
+            
+            const piece1 = gameState.pieces[index1];
+            const piece2 = gameState.pieces[index2];
+            
+            // Add swap animation
+            piece1.classList.add('swapping');
+            piece2.classList.add('swapping');
+            
+            // Play swap sound
+            playSound('swap');
+            
+            // Swap in array
+            [gameState.currentPositions[pos1], gameState.currentPositions[pos2]] = 
+            [gameState.currentPositions[pos2], gameState.currentPositions[pos1]];
+            
+            // Update data attributes
+            piece1.dataset.currentPosition = pos2;
+            piece2.dataset.currentPosition = pos1;
+            
+            // Swap in DOM
+            const parent = puzzleGrid;
+            const allPieces = Array.from(parent.children);
+            
+            setTimeout(() => {
+                parent.innerHTML = '';
+                gameState.currentPositions.forEach(index => {
+                    parent.appendChild(gameState.pieces[index]);
+                });
+                
+                // Remove animation class
+                piece1.classList.remove('swapping');
+                piece2.classList.remove('swapping');
+                
+                updateProgress();
+                checkWin();
+            }, 200);
+        }
+
+        // Update Progress
+        function updateProgress() {
+            let correct = 0;
+            gameState.currentPositions.forEach((index, position) => {
+                const piece = gameState.pieces[index];
+                if (index === position) {
+                    correct++;
+                    piece.classList.add('correct');
+                } else {
+                    piece.classList.remove('correct');
+                }
+            });
+            
+            const percentage = Math.round((correct / gameState.pieces.length) * 100);
+            progressDisplay.textContent = `${percentage}%`;
+        }
+
+        // Check Win
+        function checkWin() {
+            const isComplete = gameState.currentPositions.every((index, position) => index === position);
+            
+            if (isComplete) {
+                stopTimer();
+                playSound('complete');
+                
+                setTimeout(() => {
+                    document.getElementById('finalTime').textContent = timerDisplay.textContent;
+                    document.getElementById('finalMoves').textContent = gameState.moves;
+                    victoryOverlay.classList.add('show');
+                }, 500);
+            }
+        }
+
+        // Timer Functions
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                gameState.timer++;
+                const minutes = Math.floor(gameState.timer / 60);
+                const seconds = gameState.timer % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+        }
+
+        // Reset Puzzle
+        function resetPuzzle() {
+            stopTimer();
+            victoryOverlay.classList.remove('show');
+            startGame();
+        }
+
+        // New Image
+        function newImage() {
+            stopTimer();
+            victoryOverlay.classList.remove('show');
+            
+            gameState.uploadedImage = null;
+            gameState.pieces = [];
+            gameState.currentPositions = [];
+            gameState.moves = 0;
+            gameState.timer = 0;
+            gameState.gameStarted = false;
+            
+            startBtn.disabled = true;
+            resetBtn.disabled = true;
+            newImageBtn.disabled = true;
+            gridSizeSelect.disabled = false;
+            
+            referenceSection.style.display = 'none';
+            puzzleGrid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🧩</div>
+                    <div class="empty-state-text">Upload an image to start playing!</div>
+                </div>
+            `;
+            
+            uploadZone.innerHTML = `
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Drag & Drop Image</div>
+                <div class="upload-hint">or click to browse</div>
+            `;
+            
+            imageInput.value = '';
+            movesDisplay.textContent = '0';
+            timerDisplay.textContent = '0:00';
+            progressDisplay.textContent = '0%';
+        }
+
+        // Toggle Sound
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            soundIcon.textContent = gameState.soundEnabled ? '🔊' : '🔇';
+            soundToggle.title = gameState.soundEnabled ? 'Mute Sound' : 'Enable Sound';
+            
+            if (gameState.soundEnabled) {
+                playSound('click');
+            }
+        }
+
+        // Initialize demo images on page load
+        initDemoImages();
+    </script>
+</body>
+</html>
